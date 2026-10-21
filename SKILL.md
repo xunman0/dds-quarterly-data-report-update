@@ -12,7 +12,8 @@ Use when updating the quarterly sheet "DDS Illumination INST <year> - <n>rd-qtr 
 - Read packets with the Google Drive connector. Fan out subagents (~10-14 UCIs each) returning one line per UCI.
 
 ## Columns (A=UCI ... T)
-- E/F ethnicity tag + text (from IPP/CDER). I count, J RCOC services, K RCSERV tags, L notes for RCSERV_OTHER (from "Regional center funded services").
+- E/F ethnicity tag + text (from IPP/CDER). I count, J RCOC services, K RCSERV tags, L notes for RCSERV_OTHER (from "Regional center funded services"). Default for EVERY client: always include "Service Coordination / Case Management" in J (column I is an auto-count formula: never write I), tag RCSERV_OTHER in K, and list it in L (Other Service(s) notes) together with any other services that map to RCSERV_OTHER.
+- B Age = age on the program start date (7/1 of the quarter) from the DOB on the face sheet/IPP/CDER. G Language = the client's own preferred language. E/F ethnicity: face sheet "Hispanic, Latino/a/x, or Spanish" -> ETH_5_HISPANIC / Spanish / Latin; "Asian"/"Other Asian" -> ETH_5_ASIAN / Other; face sheet "Missing Information" -> ETH_5_OTHER_UNKNOWN / Other. Never infer ethnicity from names or narrative; leave blank and report when no document states it. Column D is ignored. Column I is an auto-count formula (never write it).
 - N = auto-count formula. NEVER write column N.
 - O Generic services, P Generic tag, Q Other Generic Service Notes, R Medi-Cal Group.
 - T follow-up contacts = count of dated entries in the client log within the quarter (each dated entry = one interaction).

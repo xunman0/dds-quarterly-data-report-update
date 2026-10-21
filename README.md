@@ -18,6 +18,7 @@ It captures the rules and the working method developed while completing a real q
 ## Key rules at a glance
 
 - **Sources:** IPP or CDER for ethnicity, services, insurance and Medi-Cal. The client log is used only for follow-up counts and barriers. IFSP (Early Start) plans and CDER-only files are skipped for services. Planned, declined or pending services are not entered.
+- **RCOC services:** every client gets "Service Coordination / Case Management" (tag `RCSERV_OTHER`, also listed in the notes column).
 - **Never write the auto-count column** (`# of Generic Services`); it is a formula.
 - **Insurance:** use the specific insurer from the dropdown, or "Private Insurance" when the provider is unknown; tag `GENSERV_OTHER` and repeat the insurer in the notes column.
 - **Medi-Cal:** the aid code picks the variant (DDS-W, SSI/SSP, p5.108.FPL, or plain), tag `GENSERV_MEDICAL`, and the network goes in the Medi-Cal Group column.
