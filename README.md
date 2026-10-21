@@ -21,7 +21,7 @@ It captures the rules and the working method developed while completing a real q
 - **Never write the auto-count column** (`# of Generic Services`); it is a formula.
 - **Insurance:** use the specific insurer from the dropdown, or "Private Insurance" when the provider is unknown; tag `GENSERV_OTHER` and repeat the insurer in the notes column.
 - **Medi-Cal:** the aid code picks the variant (DDS-W, SSI/SSP, p5.108.FPL, or plain), tag `GENSERV_MEDICAL`, and the network goes in the Medi-Cal Group column.
-- **Tags:** SSI/SSDI use `GENSERV_SSI_SSDI`; any speech, OT or PT service uses `GENSERV_SPEECH_OT_PT`; IHSS, IEP and ABA have their own tags; WIC and Cal-Fresh use `GENSERV_FOODASSIST` (not repeated in the notes); everything else is `GENSERV_OTHER` with a note.
+- **Tags:** SSI/SSDI use `GENSERV_SSI_SSDI`; any speech, OT or PT service uses `GENSERV_SPEECH_OT_PT`; IHSS, IEP and ABA have their own tags; WIC and Cal-Fresh use `GENSERV_FOODASSIST` and HUD uses `GENSERV_BASICNEEDS` (not repeated in the notes); everything else is `GENSERV_OTHER` with a note.
 - **Barriers:** one line per barrier in the format `BARRIER_TAG: description;` (each ending in a semicolon, so the count formula works), with per-tag counts and a Total row below the last client.
 
 The full rules, dropdown mappings and tag definitions are in [`SKILL.md`](SKILL.md).
