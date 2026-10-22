@@ -1,0 +1,127 @@
+# RCOC Service → Tag Reference (DDS Quarterly DATA Report)
+
+**Purpose:** Deterministic mapping from regional center (RCOC) funded services to `RCSERV_*` tags, for AI agents filling the quarterly DDS Service Access and Equity (SAE) DATA report.
+
+**Applies to MAIN-tab columns:**
+
+| Column | Header | Content |
+|---|---|---|
+| I | Number of RCOC Services Before Program | Auto-count formula. **Never write.** |
+| J | RCOC Services | Comma + space separated service names (exact dropdown text) |
+| K | Measure 18, 32 – Services TAG | Comma + space separated `RCSERV_*` tags |
+| L | Measure 18, 32 – Other Service(s) notes | Names of every service that maps to `RCSERV_OTHER` |
+
+**Data source for services:** the client's most recent IPP or CDER, section "Regional center funded services". Do not use IFSP (Early Start) plans. Do not enter planned, pending or declined services.
+
+---
+
+## 1. Rules (apply in order)
+
+1. **Default for every client:** J must contain `Service Coordination / Case Management`, K must contain `RCSERV_OTHER`, and L must contain `Service Coordination / Case Management`. Add it even when the IPP/CDER does not list it.
+2. Map each additional service using the table in section 3.
+3. K = the union of all tags from mapped services. Put `RCSERV_OTHER` first. No duplicates.
+4. L = the names of services whose tag is `RCSERV_OTHER`, comma + space separated. Do **not** list services that have a specific tag (respite, social, behavior, therapy, day program) in L.
+5. Keep existing cell values; merge, do not delete.
+6. If a service is not in the table, use the closest tag from section 2. If nothing fits, tag `RCSERV_OTHER` and list it in L. Report it to the user as an unmapped service.
+7. Separator for multi-values is `, ` (comma + space). No tabs, newlines or quotes inside values.
+
+## 2. Tag definitions
+
+| Tag | Meaning |
+|---|---|
+| `RCSERV_RESPITE` | Respite |
+| `RCSERV_DAYCARE` | Day care |
+| `RCSERV_SOCIAL` | Social skills |
+| `RCSERV_BEHAVIOR` | Behavior intervention |
+| `RCSERV_THERAPY` | Speech, developmental, occupational, or physical therapy |
+| `RCSERV_DAYPROGRAM` | Day program |
+| `RCSERV_JOB` | Employment services |
+| `RCSERV_LIVING` | Independent living, supported living |
+| `RCSERV_OTHER` | Other (specify in notes, column L) |
+
+Source: *Standardized Community Navigator Measures Tag List*, Measures 18 and 32.
+
+## 3. Service → tag lookup
+
+| Service name (column J, exact text) | Tag (column K) | Write name in L? |
+|---|---|---|
+| Service Coordination / Case Management | `RCSERV_OTHER` | Yes (always) |
+| In-Home Respite Services Agency | `RCSERV_RESPITE` | No |
+| In-Home Respite Services Agency -Respite Mileage Reimbursement | `RCSERV_RESPITE` | No |
+| In-Home Respite Services Agency #2 | `RCSERV_RESPITE` | No |
+| Participant-Directed Social Recreation Services | `RCSERV_SOCIAL` | No |
+| Social Recreational Services | `RCSERV_SOCIAL` | No |
+| Social Recreation Program | `RCSERV_SOCIAL` | No |
+| Purchase Reimbursement (Social Recreational Services) | `RCSERV_SOCIAL` | No |
+| Community Activities Support Services | `RCSERV_SOCIAL` | No |
+| Behavior Analyst | `RCSERV_BEHAVIOR` | No |
+| Infant Development Program(therapy) | `RCSERV_THERAPY` | No |
+| Infant Development Specialist | `RCSERV_THERAPY` | No |
+| Speech Pathology | `RCSERV_THERAPY` | No |
+| Adult Development Center | `RCSERV_DAYPROGRAM` | No |
+| Personal Assistance | `RCSERV_OTHER` | Yes |
+| Transition From Early Start Services | `RCSERV_OTHER` | Yes |
+| Individual or Family Training Services | `RCSERV_OTHER` | Yes |
+| Financial Management Service Co-Employer | `RCSERV_OTHER` | Yes |
+| Financial Management Service Fiscal / Employer Agent | `RCSERV_OTHER` | Yes |
+| Transportation | `RCSERV_OTHER` | Yes |
+| Transportation - OCTA | `RCSERV_OTHER` | Yes |
+| Participant-Directed Transportation - Family Member | `RCSERV_OTHER` | Yes |
+| Home Health Agency - LVN | `RCSERV_OTHER` | Yes |
+| Home Health Agency - IARE | `RCSERV_OTHER` | Yes |
+| Supported Employment Program - Group Services | `RCSERV_OTHER` | Yes |
+| Independent Living Program | `RCSERV_OTHER` | Yes |
+
+## 4. Keyword fallback (for services not in section 3)
+
+| If the service name contains | Tag |
+|---|---|
+| respite | `RCSERV_RESPITE` |
+| social, recreation, community activities | `RCSERV_SOCIAL` |
+| behavior, ABA, analyst | `RCSERV_BEHAVIOR` |
+| speech, occupational, physical therapy, infant development, developmental therapy | `RCSERV_THERAPY` |
+| day program, adult development center, day training | `RCSERV_DAYPROGRAM` |
+| day care, childcare | `RCSERV_DAYCARE` |
+| employment, job, work | `RCSERV_JOB` |
+| independent living, supported living | `RCSERV_LIVING` |
+| anything else | `RCSERV_OTHER` + name in L |
+
+**Known judgment calls:** "Supported Employment Program - Group Services" and "Independent Living Program" are currently tagged `RCSERV_OTHER` in the sheet, although `RCSERV_JOB` and `RCSERV_LIVING` are plausible matches. Follow section 3 unless the user says to change it.
+
+## 5. Output examples
+
+Client with only the default service:
+
+```
+J: Service Coordination / Case Management
+K: RCSERV_OTHER
+L: Service Coordination / Case Management
+```
+
+Client with respite and individual/family training:
+
+```
+J: Service Coordination / Case Management, In-Home Respite Services Agency, Individual or Family Training Services
+K: RCSERV_OTHER, RCSERV_RESPITE
+L: Service Coordination / Case Management, Individual or Family Training Services
+```
+
+Client with social recreation and therapy:
+
+```
+J: Service Coordination / Case Management, Participant-Directed Social Recreation Services, Speech Pathology
+K: RCSERV_OTHER, RCSERV_SOCIAL, RCSERV_THERAPY
+L: Service Coordination / Case Management
+```
+
+## 6. Writing and verification (Google Sheets via browser)
+
+- Cells with data validation reject typed text. Select the top-left target cell (Name box), then dispatch a synthetic paste of tab-separated values (columns J, K, L), one row per line.
+- Verify by fetching the sheet as CSV (`/gviz/tq?tqx=out:csv&gid=<gid>`) and comparing to the expected values. Sheet row = CSV index + 2.
+- Never write column I (formula) or column N (generic-services count formula).
+
+## 7. Do not
+
+- Do not use IFSP plans, client logs or progress reports as the source for services.
+- Do not add services that are planned, pending, declined or only requested.
+- Do not put client names, UCI numbers or case details in this file or in anything derived from it.
