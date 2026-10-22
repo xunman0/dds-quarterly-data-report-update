@@ -1,0 +1,210 @@
+# Generic Services → Tag Reference (DDS Quarterly DATA Report)
+
+**Purpose:** Deterministic mapping from generic (non-regional-center) services to `GENSERV_*` tags, for AI agents filling the quarterly DDS Service Access and Equity (SAE) DATA report.
+
+**Applies to MAIN-tab columns:**
+
+| Column | Header | Content |
+|---|---|---|
+| N | # of Generic Services | Auto-count formula. **Never write.** |
+| O | Generic Services | Comma + space separated service names (exact dropdown text) |
+| P | Generic Service Tag | Comma + space separated `GENSERV_*` tags |
+| Q | Other Generic Service Notes | Names of services that map to `GENSERV_OTHER` only |
+| R | Medi-Cal Group | Medi-Cal health network (see section 6) |
+
+**Data source:** the client's most recent IPP or CDER only ("Other funded services", "Benefits & Supports"). Do not use IFSP plans, client logs or progress reports. Do not enter planned, pending or declined services. Clients with no IPP or CDER are skipped.
+
+---
+
+## 1. Rules (apply in order)
+
+1. Read the client's IPP/CDER and list every generic service, benefit and insurance currently received.
+2. Map each item to a dropdown name and tag using section 3.
+3. P = the union of all tags. No duplicates.
+4. Q = names of services whose tag is `GENSERV_OTHER`, comma + space separated. **Never** write a service in Q if it has a specific tag (anything in sections 3A to 3F).
+5. If Q ends up empty, remove `GENSERV_OTHER` from P.
+6. Merge with existing cell values; do not delete existing entries. If the IPP names an insurer, it replaces a generic "Private Insurance".
+7. If an item is not in the table, use the keyword fallback (section 4). If nothing fits, tag `GENSERV_OTHER`, list it in Q, and report it to the user.
+8. Never write column N (formula).
+9. Separator for multi-values is `, ` (comma + space). No tabs, newlines or quotes inside values.
+
+## 2. Tag definitions
+
+| Tag | Meaning |
+|---|---|
+| `GENSERV_BEHAVIOR` | Behavior intervention services through Medi-Cal or insurance |
+| `GENSERV_SPEECH_OT_PT` | Speech, occupational or physical therapy through Medi-Cal or insurance |
+| `GENSERV_IEP` | Special education services (IEP) |
+| `GENSERV_MEDICAL` | Medi-Cal (health insurance) |
+| `GENSERV_SSI_SSDI` | SSI/SSDI (Supplemental Security Income / Social Security Disability Insurance) |
+| `GENSERV_IHSS` | In-home supportive services (IHSS) |
+| `GENSERV_TRANSPORT` | Transportation services (Access/Rider Relief) |
+| `GENSERV_PARENTWS` | Parenting workshops |
+| `GENSERV_COMMHEALTH` | Community public health services |
+| `GENSERV_FOODASSIST` | Food assistance: CalFresh, WIC and/or food banks |
+| `GENSERV_BASICNEEDS` | Assistance with other basic needs such as housing and finances |
+| `GENSERV_MENTAL` | Mental wellness / mental health services |
+| `GENSERV_LEGALASSIST` | Assistance with legal documents such as conservatorship or trust |
+| `GENSERV_POSTEDU` | Post-secondary education |
+| `GENSERV_JOB` | Job training or internship |
+| `GENSERV_OTHER` | Other (specify in notes, column Q) |
+
+Source: *Standardized Community Navigator Measures Tag List*, Measures 19 and 31. The P dropdown offers: BASICNEEDS, BEHAVIOR, COMMHEALTH, FOODASSIST, IEP, IHSS, JOB, LEGALASSIST, MEDICAL, MENTAL, PARENTWS, SPEECH_OT_PT, SSI_SSDI, TRANSPORT, OTHER.
+
+## 3. Service → tag lookup
+
+### 3A. Medi-Cal (tag `GENSERV_MEDICAL`, not written in Q)
+
+Pick the variant by the Medi-Cal aid code in the IPP/CDER:
+
+| Aid code | Column O value |
+|---|---|
+| 6V or 6W | Medi-Cal (DDS-W) |
+| 60 | Medi-Cal (SSI/SSP) |
+| P5 | Medi-Cal (p5.108.FPL) |
+| other or unknown | Medi-Cal |
+
+Also fill column R (section 6).
+
+### 3B. Health insurance (tag `GENSERV_OTHER`, **also write the insurer in Q**)
+
+| IPP/CDER says | Column O value |
+|---|---|
+| Aetna | Aetna |
+| Anthem, Anthem Blue Cross | Anthem / Anthem Blue Cross |
+| Blue Cross, BlueCross HMO | Blue Cross / Blue Shield / BlueCross HMO |
+| Cigna | Cigna |
+| Kaiser, Kaiser HMO, Kaiser PPO (private, not Medi-Cal) | Kaiser / Kaiser HMO / Kaiser PPO |
+| United Health, United Health Care | United Health / United Health Care |
+| CHAMPVA | CHAMPVA (Vet) |
+| Optum Health | Optum Health |
+| Private insurance with no named insurer, or an insurer not listed (HMO/PPO only) | Private Insurance |
+
+Medicare is not entered.
+
+### 3C. Services with a specific tag (do **not** write in Q)
+
+| Service (column O value) | Tag |
+|---|---|
+| In-Home Supportive Services (IHSS) | `GENSERV_IHSS` |
+| SSI – Supplemental Security Income | `GENSERV_SSI_SSDI` |
+| SSA-DAC | `GENSERV_SSI_SSDI` |
+| SSA-Minor Child | `GENSERV_SSI_SSDI` |
+| K–12 School / School District – IEP | `GENSERV_IEP` |
+| IEP (Individualized Education Program) | `GENSERV_IEP` |
+| SELPA – Language/Speech Therapy | `GENSERV_SPEECH_OT_PT` |
+| SELPA – Occupational Therapy | `GENSERV_SPEECH_OT_PT` |
+| Language/Speech Services – Therapy | `GENSERV_SPEECH_OT_PT` |
+| Language / Speech Services | `GENSERV_SPEECH_OT_PT` |
+| Occupational Therapy | `GENSERV_SPEECH_OT_PT` |
+| Physical Therapy | `GENSERV_SPEECH_OT_PT` |
+| CCS- Occupational Therapy | `GENSERV_SPEECH_OT_PT` |
+| CCS- Physical Therapy | `GENSERV_SPEECH_OT_PT` |
+| Audiology – Therapy | `GENSERV_SPEECH_OT_PT` |
+| Food Therapy (feeding therapy; counts as occupational therapy) | `GENSERV_SPEECH_OT_PT` |
+| Behavioral Health Service / ABA | `GENSERV_BEHAVIOR` |
+| WIC (Food Assist) | `GENSERV_FOODASSIST` |
+| Cal-Fresh (Food Assist) | `GENSERV_FOODASSIST` |
+| HUD / HUD Voucher | `GENSERV_BASICNEEDS` |
+| CalWORKs | `GENSERV_JOB` |
+
+### 3D. Services tagged `GENSERV_OTHER` (**also write in Q**)
+
+| Service (column O value) |
+|---|
+| Child Support |
+| California Children Services |
+| Assistive Technology Svcs |
+| Private Duty Nursing |
+| Public Health Nursing |
+| Individual Counselling |
+| Family Training and Counseling |
+| Health Service / Intervention |
+| Medical Assessment / Consultation |
+| any health insurer in 3B |
+
+## 4. Keyword fallback (for items not in section 3)
+
+| If the item contains | Tag |
+|---|---|
+| speech, occupational, physical therapy, feeding, food therapy, audiology | `GENSERV_SPEECH_OT_PT` |
+| ABA, behavior analyst, behavioral health | `GENSERV_BEHAVIOR` |
+| IEP, SELPA, school district special education | `GENSERV_IEP` |
+| IHSS, in-home supportive | `GENSERV_IHSS` |
+| SSI, SSDI, SSA | `GENSERV_SSI_SSDI` |
+| Medi-Cal | `GENSERV_MEDICAL` |
+| WIC, CalFresh, food stamps, food bank | `GENSERV_FOODASSIST` |
+| HUD, housing, rent assistance, voucher | `GENSERV_BASICNEEDS` |
+| mental health, therapy for mental wellness | `GENSERV_MENTAL` |
+| conservatorship, trust, legal | `GENSERV_LEGALASSIST` |
+| job training, internship, CalWORKs | `GENSERV_JOB` |
+| Access, Rider Relief, paratransit | `GENSERV_TRANSPORT` |
+| parenting workshop | `GENSERV_PARENTWS` |
+| college, post-secondary | `GENSERV_POSTEDU` |
+| anything else (nursing, counseling, child support, CCS, assistive technology, insurers) | `GENSERV_OTHER` + name in Q |
+
+## 5. Precedence notes
+
+- **Any speech, OT or PT service** (private, insurance, Medi-Cal, CCS or school) uses `GENSERV_SPEECH_OT_PT`, never Q.
+- **SSI, SSA-DAC and SSA-Minor Child** use `GENSERV_SSI_SSDI`, never Q.
+- **IHSS, IEP and ABA** each have their own tag; do not use `GENSERV_OTHER` for them.
+- **WIC and Cal-Fresh** use `GENSERV_FOODASSIST`; **HUD** uses `GENSERV_BASICNEEDS`. Never put these in Q.
+- A health insurer is the only common case where a service is both tagged `GENSERV_OTHER` and listed in Q alongside other tags.
+
+## 6. Medi-Cal Group (column R)
+
+Use the health network named in the IPP/CDER for the client's Medi-Cal. Leave blank when the client has no Medi-Cal.
+
+| IPP/CDER says | Column R value |
+|---|---|
+| CHOC, CHOC Health Alliance | CHOC |
+| CalOptima (any variant) | CalOptima |
+| AMVI | AMVI Care Medical Group |
+| Monarch | Monarch |
+| United Care | United Care |
+| ARTA | ARTA Western Health Network |
+| Kaiser | Kaiser |
+| AltaMed | AltaMed Medical Group |
+| Medi-Cal present but network missing or not in this list | unknown |
+
+## 7. Output examples
+
+Medi-Cal only:
+
+```
+O: Medi-Cal
+P: GENSERV_MEDICAL
+Q:
+R: unknown
+```
+
+Medi-Cal (SSI/SSP), SSI, IEP and school speech:
+
+```
+O: Medi-Cal (SSI/SSP), SSI – Supplemental Security Income, K–12 School / School District – IEP, SELPA – Language/Speech Therapy
+P: GENSERV_MEDICAL, GENSERV_SSI_SSDI, GENSERV_IEP, GENSERV_SPEECH_OT_PT
+Q:
+R: CHOC
+```
+
+Private insurer plus counseling and WIC:
+
+```
+O: Cigna, Individual Counselling, WIC (Food Assist)
+P: GENSERV_OTHER, GENSERV_FOODASSIST
+Q: Cigna, Individual Counselling
+R:
+```
+
+## 8. Writing and verification (Google Sheets via browser)
+
+- Cells with data validation reject typed text. Select the top-left target cell (Name box), then dispatch a synthetic paste of tab-separated values (columns O, P, Q, R), one row per line.
+- Verify by fetching the sheet as CSV (`/gviz/tq?tqx=out:csv&gid=<gid>`) and comparing to the expected values. Sheet row = CSV index + 2.
+- Never write column N.
+
+## 9. Do not
+
+- Do not use IFSP plans, client logs or progress reports as the source.
+- Do not add planned, pending or declined services.
+- Do not infer services that are not written in the IPP/CDER.
+- Do not put client names, UCI numbers or case details in this file or anything derived from it.
